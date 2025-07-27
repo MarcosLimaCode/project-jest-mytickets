@@ -8,7 +8,9 @@
     "start": "npm run migration:run && npm run seed && node dist/src/server.js",
     "dev": "ts-node-dev src/server.ts",
     "migration:run": "prisma migrate deploy",
-    "test": "jest"
+    "test:load-envs": "dotenv -e .env.test",
+    "test": "npm run test:load-envs jest",
+    "test:migration:run": "npm run test:load-envs prisma migrate deploy"
   },
   "keywords": [],
   "author": "Marcos Lima",
@@ -27,6 +29,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^20.14.10",
     "@types/supertest": "^6.0.3",
+    "dotenv-cli": "^9.0.0",
     "jest": "^30.0.5",
     "prisma": "^5.16.2",
     "supertest": "^7.1.4",
