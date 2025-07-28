@@ -4,17 +4,19 @@ import supertest from "supertest";
 import {
   createEvent,
   postEvent,
+  postInvalidEvent,
   postWrongEvent,
 } from "./factories/events-factory";
 
 const api = supertest(app);
 
 beforeEach(async () => {
+  await prisma.ticket.deleteMany();
   await prisma.event.deleteMany();
 });
 
 describe("POST /event", () => {
-  it("should a create event", async () => {
+  it("should create an event", async () => {
     const data = await postEvent();
     const { status } = await api.post("/events").send(data);
     const { body } = await api.get("/events");
@@ -29,6 +31,13 @@ describe("POST /event", () => {
         }),
       ])
     );
+  });
+
+  it("should return error for try to create a duplicate event", async () => {
+    const data = await postEvent();
+    await api.post("/events").send(data);
+    const { status } = await api.post("/events").send(data);
+    expect(status).toBe(409);
   });
 });
 
@@ -103,6 +112,13 @@ describe("PUT /event", () => {
         date: expect.any(String),
       })
     );
+  });
+
+  it("should return error if name is not the same", async () => {
+    const { id, name } = await createEvent();
+    const data = await postInvalidEvent(name);
+    const { status } = await api.put(`/events/${id}`).send(data);
+    expect(status).toBe(200);
   });
 });
 
